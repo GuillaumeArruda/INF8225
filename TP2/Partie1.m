@@ -15,13 +15,13 @@ taux_dapprentissage = 0.0005;
 possibleY = eye(n);
 converged = false;
 yixi = Y' * X';
-
+lastLogVraisemblance = 0;
 
 while ~converged
-    Z =  repmat(sum(exp(possibleY * Theta * X)),4,1);
-    t = Y' * (Theta * X)';
-    d = log(sum(exp(Theta * X)));
-    logVraisemblance = sum(sum(Y' * (Theta * X)' - log(sum(sum(exp(Theta * X))))))
+    logVraisemblance = sum(sum(((Y * Theta) .* X')') - log(sum(exp(possibleY * Theta * X))));
+    converged = abs(lastLogVraisemblance - logVraisemblance) < 0.1;
+    lastLogVraisemblance = logVraisemblance;
+    Z = repmat(sum(exp(possibleY * Theta * X)),4,1);
     esperance = ((exp(possibleY * Theta * X)./Z)' * possibleY)' * X';
     gradient = yixi - esperance;
     Theta = Theta + (taux_dapprentissage * gradient);
