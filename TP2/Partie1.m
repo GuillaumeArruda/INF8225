@@ -17,9 +17,11 @@ converged = false;
 yixi = Y' * X';
 lastLogVraisemblance = -realmax;
 [XA XV XT YA YV YT] = create_train_valid_test_splits(X,Y);
-i = 0;
+precision = [];
+logVraisemblances = [];
 while ~converged
     logVraisemblance = sum(sum(((Y * Theta) .* X')') - log(sum(exp(possibleY * Theta * X))));
+    logVraisemblances = [logVraisemblances, logVraisemblance];
     converged = logVraisemblance - lastLogVraisemblance  < 0.1;
     lastLogVraisemblance = logVraisemblance;
     %Apprentissage
@@ -38,19 +40,21 @@ while ~converged
         result(i, index(i)) = 1;
     end
     d = result == YV;
-    precision = sum(sum((result == YV))) / size(result,1)
-    i = i+1;
+    precision = [precision, sum(sum((result == YV))) / size(result,1)];
 end
-
+figure();
+plot([1:size(precision,2)],precision);
+figure();
+plot([1:size(logVraisemblances,2)],logVraisemblances);
 %Test
-Z = repmat(sum(exp(possibleY * Theta * XV)),4,1);
-reponse = exp(possibleY * Theta * XV)./Z;
+Z = repmat(sum(exp(possibleY * Theta * XT)),4,1);
+reponse = exp(possibleY * Theta * XT)./Z;
 [reponse, index] = max(reponse);
 result = ones(size(reponse,2),4);
 result = result * 2;
 for i = 1 : size(index,2)
     result(i, index(i)) = 1;
 end
-d = result == YV;
-precision = sum(sum((result == YV))) / size(result,1)
-i = i+1;
+precisionTest = sum(sum((result == YT))) / size(result,1);
+fprintf('Precision sur lensemble de test = %f\n', full(precisionTest));
+
