@@ -12,10 +12,17 @@ Theta = rand(4,101)-.5;
 X = [documents ; ones(1,16242)];
 taux_dapprentissage = 0.0005;
 
+possibleY = eye(n);
 converged = false;
 yixi = Y' * X';
+
+
 while ~converged
-    WX = Theta * X;
-    logSumExpWX = log(sum(exp(WX)));
-    logVraisemblance = sum(sum(Y * bsxfun(@minus,WX,logSumExpWX))); 
+    Z =  repmat(sum(exp(possibleY * Theta * X)),4,1);
+    t = Y' * (Theta * X)';
+    d = log(sum(exp(Theta * X)));
+    logVraisemblance = sum(sum(Y' * (Theta * X)' - log(sum(sum(exp(Theta * X))))))
+    esperance = ((exp(possibleY * Theta * X)./Z)' * possibleY)' * X';
+    gradient = yixi - esperance;
+    Theta = Theta + (taux_dapprentissage * gradient);
 end
