@@ -44,7 +44,7 @@ class OutputNeuralLayer:
         return self.activation
 
     def backpropagate(self,Y):
-        self.deltas = (Y.T - self.activation)
+        self.deltas = -(Y.T - self.activation)
         return self.deltas
 
     def update(self):
